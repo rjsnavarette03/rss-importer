@@ -50,7 +50,7 @@ function rss_importer_import_feed() {
             'post_status'  => 'publish',
             'post_date'    => $post_date,
             'post_author'  => 2,
-            'post_category'=> [1] // Default category
+            'post_category'=> [8] // Default category
         ]);
     }
 }

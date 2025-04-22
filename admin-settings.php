@@ -47,7 +47,7 @@ function rss_importer_register_settings() {
 
 function rss_importer_feed_url_field() {
     $feed_url = get_option('rss_importer_feed_url');
-    echo "<input type='text' name='rss_importer_feed_url' value='" . esc_attr($feed_url) . "' class='regular-text' />";
+    echo "<input type='text' name='rss_importer_feed_url' value='" . esc_attr($feed_url) . "' class='regular-text rss-feed-url' />";
 }
 
 function rss_importer_num_items_field() {
