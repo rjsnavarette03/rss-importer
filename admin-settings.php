@@ -4,11 +4,11 @@ add_action('admin_menu', 'rss_importer_settings_page');
 
 function rss_importer_settings_page() {
     add_options_page(
-        'RSS Importer Settings',  // Page title
-        'RSS Importer',           // Menu title
-        'manage_options',         // Capability required
-        'rss-importer',           // Menu slug
-        'rss_importer_settings_page_callback' // Callback function to render the page
+        'RSS Importer Settings',
+        'RSS Importer',
+        'manage_options',
+        'rss-importer',
+        'rss_importer_settings_page_callback'
     );
 }
 
@@ -23,6 +23,8 @@ function rss_importer_settings_page_callback() {
             submit_button();
             ?>
         </form>
+
+        <!-- Fetch Now Button -->
         <?php rss_importer_fetch_now_button(); ?>
     </div>
     <?php
@@ -32,63 +34,25 @@ function rss_importer_settings_page_callback() {
 add_action('admin_init', 'rss_importer_register_settings');
 
 function rss_importer_register_settings() {
-    register_setting(
-        'rss_importer_options_group', // Options group
-        'rss_importer_feed_url'       // Option name
-    );
-    register_setting(
-        'rss_importer_options_group',
-        'rss_importer_num_items'
-    );
-    register_setting(
-        'rss_importer_options_group',
-        'rss_importer_fetch_frequency'
-    );
+    register_setting('rss_importer_options_group', 'rss_importer_feed_url');
+    register_setting('rss_importer_options_group', 'rss_importer_num_items');
+    register_setting('rss_importer_options_group', 'rss_importer_fetch_frequency');
 
-    // Add settings section
-    add_settings_section(
-        'rss_importer_main_section',
-        'Main Settings',
-        null,
-        'rss-importer'
-    );
+    add_settings_section('rss_importer_main_section', 'Main Settings', null, 'rss-importer');
 
-    // Add the feed URL field
-    add_settings_field(
-        'rss_importer_feed_url',
-        'RSS Feed URL',
-        'rss_importer_feed_url_field',
-        'rss-importer',
-        'rss_importer_main_section'
-    );
-
-    // Add the number of items field
-    add_settings_field(
-        'rss_importer_num_items',
-        'Number of Items to Import',
-        'rss_importer_num_items_field',
-        'rss-importer',
-        'rss_importer_main_section'
-    );
-
-    // Add the frequency field
-    add_settings_field(
-        'rss_importer_fetch_frequency',
-        'Fetch Frequency',
-        'rss_importer_fetch_frequency_field',
-        'rss-importer',
-        'rss_importer_main_section'
-    );
+    add_settings_field('rss_importer_feed_url', 'RSS Feed URL', 'rss_importer_feed_url_field', 'rss-importer', 'rss_importer_main_section');
+    add_settings_field('rss_importer_num_items', 'Number of Items to Import', 'rss_importer_num_items_field', 'rss-importer', 'rss_importer_main_section');
+    add_settings_field('rss_importer_fetch_frequency', 'Fetch Frequency', 'rss_importer_fetch_frequency_field', 'rss-importer', 'rss_importer_main_section');
 }
 
 function rss_importer_feed_url_field() {
     $feed_url = get_option('rss_importer_feed_url');
-    echo "<input type='text' name='rss_importer_feed_url' value='$feed_url' class='regular-text' />";
+    echo "<input type='text' name='rss_importer_feed_url' value='" . esc_attr($feed_url) . "' class='regular-text' />";
 }
 
 function rss_importer_num_items_field() {
     $num_items = get_option('rss_importer_num_items', 5);
-    echo "<input type='number' name='rss_importer_num_items' value='$num_items' min='1' />";
+    echo "<input type='number' name='rss_importer_num_items' value='" . esc_attr($num_items) . "' min='1' />";
 }
 
 function rss_importer_fetch_frequency_field() {
@@ -102,7 +66,7 @@ function rss_importer_fetch_frequency_field() {
     <?php
 }
 
-// Add "Fetch Now" button to the settings page
+// Add "Fetch Now" button
 function rss_importer_fetch_now_button() {
     ?>
     <form method="post" action="">
@@ -112,10 +76,18 @@ function rss_importer_fetch_now_button() {
     <?php
 }
 
-// Handle "Fetch Now" action
-if (isset($_POST['rss_importer_fetch_now'])) {
-    if (isset($_POST['rss_importer_fetch_now_nonce']) && wp_verify_nonce($_POST['rss_importer_fetch_now_nonce'], 'rss_importer_fetch_now_action')) {
-        rss_importer_import_feed(); // Trigger the feed import
-        echo '<div class="updated"><p>Feed imported successfully!</p></div>';
+// Handle "Fetch Now" POST action properly
+add_action('admin_init', 'rss_importer_handle_fetch_now');
+
+function rss_importer_handle_fetch_now() {
+    if (isset($_POST['rss_importer_fetch_now'], $_POST['rss_importer_fetch_now_nonce']) && 
+        wp_verify_nonce($_POST['rss_importer_fetch_now_nonce'], 'rss_importer_fetch_now_action')) {
+        
+        rss_importer_import_feed(); // Import the feed
+
+        // Show admin notice
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-success is-dismissible"><p>Feed imported successfully!</p></div>';
+        });
     }
 }
