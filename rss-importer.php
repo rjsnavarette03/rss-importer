@@ -87,6 +87,9 @@ function rss_importer_import_feed() {
                 'post_date'    => $post_date,
                 'post_author'  => 2,
                 'post_category'=> [$category_id],
+                'comment_status' => 'closed',
+                'ping_status'    => 'open',
+                'tags_input'    => ['www.clickorlando.com'],
             ]);
 
             // Save the GUID as post meta to prevent future duplicates
