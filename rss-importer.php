@@ -24,15 +24,16 @@ function rss_importer_fetch_feed() {
 
 add_action('rss_importer_fetch_event', 'rss_importer_import_feed');
 function rss_importer_import_feed() {
-    $feed_urls = [
-        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/health/?outputType=xml&size=10',
-        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/sports/?outputType=xml&size=10',
-        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/news/?outputType=xml&size=10',
-        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/entertainment/?outputType=xml&size=10'
+    $feeds = [
+        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/health/?outputType=xml&size=10' => 12,
+        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/sports/?outputType=xml&size=10' => 13,
+        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/news/?outputType=xml&size=10' => 14,
+        'https://www.clickorlando.com/arc/outboundfeeds/rss/category/entertainment/?outputType=xml&size=10' => 15,
     ];
 
-    foreach ($feed_urls as $feed_url) {
-        $num_items = 5;
+    $num_items = 5;
+
+    foreach ($feeds as $feed_url => $category_id) {
         $rss = fetch_feed($feed_url);
 
         if (is_wp_error($rss)) {
@@ -67,8 +68,15 @@ function rss_importer_import_feed() {
                 $post_content = $item->get_description();
             }
 
-            // Prepare the post date
-            $post_date = $item->get_date('Y-m-d H:i:s');
+            // Handle the feed's publish date and convert to local timezone
+            $feed_date_raw = $item->get_date('Y-m-d H:i:s');
+            if ($feed_date_raw) {
+                $feed_date_utc = new DateTime($feed_date_raw, new DateTimeZone('UTC'));
+                $feed_date_utc->setTimezone(wp_timezone());
+                $post_date = $feed_date_utc->format('Y-m-d H:i:s');
+            } else {
+                $post_date = current_time('mysql');
+            }
 
             // Create the post
             $post_id = wp_insert_post([
@@ -78,7 +86,7 @@ function rss_importer_import_feed() {
                 'post_type'     => 'post',
                 'post_date'    => $post_date,
                 'post_author'  => 2,
-                'post_category'=> [8]
+                'post_category'=> [$category_id],
             ]);
 
             // Save the GUID as post meta to prevent future duplicates
