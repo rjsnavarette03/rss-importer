@@ -51,18 +51,27 @@ function rss_importer_import_feed() {
             continue;
         }
 
+        // Prepare the post title
+        $post_title = wp_strip_all_tags($item->get_title());
+
         // Prepare the post content
         $post_content = $item->get_content();
         if (empty($post_content)) {
             $post_content = $item->get_description();
         }
 
+        // Prepare the post date
+        $post_date = $item->get_date('Y-m-d H:i:s');
+
         // Create the post
         $post_id = wp_insert_post([
-            'post_title'    => wp_strip_all_tags($item->get_title()),
+            'post_title'    => $post_title,
             'post_content'  => $post_content,
             'post_status'   => 'publish',
-            'post_type'     => 'post'
+            'post_type'     => 'post',
+            'post_date'    => $post_date,
+            'post_author'  => 2,
+            'post_category'=> [8]
         ]);
 
         // Save the GUID as post meta to prevent future duplicates
