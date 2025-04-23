@@ -68,6 +68,9 @@ function rss_importer_import_feed() {
                 $post_content = $item->get_description();
             }
 
+            // Prepare the post excerpt
+            $post_excerpt = $item->get_description();
+
             // Handle the feed's publish date and convert to local timezone
             $feed_date_raw = $item->get_date('Y-m-d H:i:s');
             if ($feed_date_raw) {
@@ -82,6 +85,7 @@ function rss_importer_import_feed() {
             $post_id = wp_insert_post([
                 'post_title'    => $post_title,
                 'post_content'  => $post_content,
+                'post_excerpt'  => $post_excerpt,
                 'post_status'   => 'publish',
                 'post_type'     => 'post',
                 'post_date'    => $post_date,
