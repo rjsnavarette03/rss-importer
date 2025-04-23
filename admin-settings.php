@@ -1,8 +1,9 @@
 <?php
-// Add the plugin's settings page to the WordPress admin menu
+// Add the plugin's settings page to the WordPress admin menu under the "Posts" tab
 add_action('admin_menu', 'rss_importer_add_admin_menu');
 function rss_importer_add_admin_menu() {
-    add_options_page(
+    add_submenu_page(
+        'edit.php',
         'RSS Importer Settings',
         'RSS Importer',
         'manage_options',
