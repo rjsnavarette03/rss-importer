@@ -59,3 +59,18 @@ function rss_importer_import_feed() {
 register_deactivation_hook(__FILE__, function() {
     wp_clear_scheduled_hook('rss_importer_fetch_event');
 });
+
+add_action('admin_enqueue_scripts', 'rss_importer_enqueue_admin_styles');
+function rss_importer_enqueue_admin_styles($hook) {
+    // Only load on our plugin settings page
+    if ($hook != 'settings_page_rss-importer') {
+        return;
+    }
+
+    wp_enqueue_style(
+        'rss-importer-admin-style',
+        plugin_dir_url(__FILE__) . 'assets/css/admin.css',
+        array(),
+        '1.0.0'
+    );
+}

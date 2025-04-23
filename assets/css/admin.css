@@ -1,8 +1,9 @@
 .wrap h1 {
     color: #0073aa;
 }
-.wrap input {
-    width: 10em;
+.wrap input,
+.wrap select {
+    width: 175px;
 }
 .wrap input.rss-feed-url {
     width: 50em;
