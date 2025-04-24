@@ -1,6 +1,9 @@
 <?php
 function generate_ai_content_from_rss($title, $content) {
-    $api_key = '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';
+    $api_key = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
+    if (empty($api_key)) {
+        log_to_file('OpenAI API key is not defined!', 'API KEY ERROR');
+    }
 
     $prompt = "You're a blogger for a local Orlando news site. Based on the following headline and content, generate:\n\n1. A catchy and original blog post title.\n2. A short blog post based on the following headline and content. Make it informative, original, and human-like.\n\nHeadline: {$title}\n\Content: {$content}\n\nReturn the result in this format:\nTitle: <Your title>\n\nContent:\n<Your content>";
 
