@@ -99,6 +99,7 @@ function rss_importer_import_feed() {
             // Save the GUID as post meta to prevent future duplicates
             if (!is_wp_error($post_id)) {
                 update_post_meta($post_id, 'rss_importer_guid', $guid);
+                update_post_meta($post_id, 'rss_importer_source_link', $item->get_link());
 
                 // Extract the image URL from <media:content>
                 $media_content = $item->get_item_tags('http://search.yahoo.com/mrss/', 'content');
