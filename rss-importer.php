@@ -107,6 +107,13 @@ function rss_importer_import_feed() {
 
                     // Set the featured image if the URL is valid
                     if (!empty($image_url)) {
+                        // Ensure media functions are available
+                        if (!function_exists('media_handle_sideload')) {
+                            require_once ABSPATH . 'wp-admin/includes/image.php';
+                            require_once ABSPATH . 'wp-admin/includes/file.php';
+                            require_once ABSPATH . 'wp-admin/includes/media.php';
+                        }
+
                         $image_id = media_sideload_image($image_url, $post_id, null, 'id');
 
                         if (!is_wp_error($image_id)) {
