@@ -11,7 +11,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include admin settings page
+// Include others
+include('ai-content-generator.php');
 include('admin-settings.php');
 
 // Main RSS import function
@@ -67,6 +68,11 @@ function rss_importer_import_feed() {
             if (empty($post_content)) {
                 $post_content = $item->get_description();
             }
+            // Prepare the post content using AI instead
+            $ai_generated = generate_ai_content_from_rss($post_title, $post_content);
+
+            $new_post_title   = $ai_generated['title'];
+            $new_post_content = $ai_generated['content'];
 
             // Prepare the post excerpt
             $post_excerpt = $item->get_description();
