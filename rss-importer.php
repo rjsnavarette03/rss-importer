@@ -69,7 +69,7 @@ function rss_importer_import_feed() {
                 $post_content = $item->get_description();
             }
             // Prepare the post content using AI instead
-            $ai_generated = generate_ai_content_from_rss($post_title, $post_content);
+            $ai_generated = generate_ai_content_from_rss($post_title, $post_content, $item->get_description());
 
             $new_post_title   = $ai_generated['title'];
             $new_post_content = $ai_generated['content'];
@@ -152,3 +152,13 @@ function rss_importer_enqueue_admin_styles($hook) {
         '1.0.0'
     );
 }
+
+// Post source link
+function rss_importer_display_source_link() {
+    $source_link = get_post_meta(get_the_ID(), 'rss_importer_source_link', true);
+    if (!empty($source_link)) {
+        return '<a href="' . esc_url($source_link) . '" target="_blank" rel="noopener">' . esc_url($source_link) . '</a>';
+    }
+    return '';
+}
+add_shortcode('rss_source_link', 'rss_importer_display_source_link');

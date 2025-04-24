@@ -1,11 +1,15 @@
 <?php
-function generate_ai_content_from_rss($title, $content) {
+function generate_ai_content_from_rss($title, $content, $description) {
     $api_key = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
     if (empty($api_key)) {
         log_to_file('OpenAI API key is not defined!', 'API KEY ERROR');
+        return [
+            'title' => $title,
+            'content' => $content,
+        ];
     }
 
-    $prompt = "You're a blogger for a local Orlando news site. Based on the following headline and content, generate:\n\n1. A catchy and original blog post title.\n2. A short blog post based on the following headline and content. Make it informative, original, and human-like.\n\nHeadline: {$title}\n\Content: {$content}\n\nReturn the result in this format:\nTitle: <Your title>\n\nContent:\n<Your content>";
+    $prompt = "You're a blogger for a local Orlando news site. Use the description below to create a brand new original 1000 word SEO wise blog for my Orlando news website called 'Daily Orlando News'. The blog post should include an introduction, main body, and conclusion. The conclusion should invite readers to leave a comment. The main body should be split into at least 4 different subsections. For the title, make it 50-60 characters only.\n\nDescription: {$description}\n\nAlso, make sure you know that it's an ORLANDO news to address how the issue affects Orlando whenever possible. Return the result in the format below and should be HTML safe, like if there is a link, wrap it in a <a> tag:\nTitle: <Your title>\n\nContent:\n<Your content>";
 
     $body = json_encode([
         'model' => 'gpt-4.1',
@@ -14,7 +18,7 @@ function generate_ai_content_from_rss($title, $content) {
             ['role' => 'user', 'content' => $prompt],
         ],
         'temperature' => 0.7,
-        'max_tokens' => 700,
+        'max_tokens' => 1200,
     ]);
 
     $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
@@ -28,12 +32,14 @@ function generate_ai_content_from_rss($title, $content) {
 
     log_to_file($response, 'OpenAI Response');
 
-    if (is_wp_error($response)) {
-        log_to_file($response->get_error_message(), 'OpenAI Error');
-        return null;
-    }
-
     $data = json_decode(wp_remote_retrieve_body($response), true);
+    if (empty($data)) {
+        log_to_file('Failed to decode OpenAI response', 'JSON ERROR');
+        return [
+            'title' => $title,
+            'content' => $content,
+        ];
+    }
     $aicontent = $data['choices'][0]['message']['content'] ?? '';
 
     log_to_file($aicontent, 'AI Raw Output');
@@ -53,7 +59,7 @@ function generate_ai_content_from_rss($title, $content) {
 
     return [
         'title' => $title_match ?: $title,
-        'content' => $content_match ?: $description,
+        'content' => $content_match ?: $content,
     ];
 }
 
