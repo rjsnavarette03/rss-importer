@@ -8,7 +8,7 @@ function generate_ai_content_from_rss($title, $content) {
     $prompt = "You're a blogger for a local Orlando news site. Based on the following headline and content, generate:\n\n1. A catchy and original blog post title.\n2. A short blog post based on the following headline and content. Make it informative, original, and human-like.\n\nHeadline: {$title}\n\Content: {$content}\n\nReturn the result in this format:\nTitle: <Your title>\n\nContent:\n<Your content>";
 
     $body = json_encode([
-        'model' => 'gpt-4-turbo',
+        'model' => 'gpt-4.1',
         'messages' => [
             ['role' => 'system', 'content' => 'You are a helpful assistant who writes blog posts.'],
             ['role' => 'user', 'content' => $prompt],
