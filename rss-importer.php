@@ -32,7 +32,7 @@ function rss_importer_import_feed() {
         'https://www.clickorlando.com/arc/outboundfeeds/rss/category/entertainment/?outputType=xml&size=10' => 15,
     ];
 
-    $num_items = 5;
+    $num_items = 1;
 
     foreach ($feeds as $feed_url => $category_id) {
         $rss = fetch_feed($feed_url);
@@ -89,8 +89,8 @@ function rss_importer_import_feed() {
 
             // Create the post
             $post_id = wp_insert_post([
-                'post_title'    => $post_title,
-                'post_content'  => $post_content,
+                'post_title'    => $new_post_title,
+                'post_content'  => $new_post_content,
                 'post_excerpt'  => $post_excerpt,
                 'post_status'   => 'publish',
                 'post_type'     => 'post',
