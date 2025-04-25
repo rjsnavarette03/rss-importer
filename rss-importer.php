@@ -152,13 +152,3 @@ function rss_importer_enqueue_admin_styles($hook) {
         '1.0.0'
     );
 }
-
-// Post source link
-function rss_importer_display_source_link() {
-    $source_link = get_post_meta(get_the_ID(), 'rss_importer_source_link', true);
-    if (!empty($source_link)) {
-        return '<a href="' . esc_url($source_link) . '" target="_blank" rel="noopener">' . esc_url($source_link) . '</a>';
-    }
-    return '';
-}
-add_shortcode('rss_source_link', 'rss_importer_display_source_link');
