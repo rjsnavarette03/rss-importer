@@ -32,7 +32,7 @@ function rss_importer_import_feed() {
         'https://www.clickorlando.com/arc/outboundfeeds/rss/category/entertainment/?outputType=xml&size=10' => 15,
     ];
 
-    $num_items = 1;
+    $num_items = 5;
 
     foreach ($feeds as $feed_url => $category_id) {
         $rss = fetch_feed($feed_url);
