@@ -38,6 +38,7 @@ function rss_importer_import_feed() {
         $rss = fetch_feed($feed_url);
 
         if (is_wp_error($rss)) {
+            log_to_file('Error fetching feed: ' . $feed_url, 'Error on RSS');
             continue;
         }
 
@@ -60,21 +61,21 @@ function rss_importer_import_feed() {
                 continue;
             }
 
-            // Prepare base title and content
-            $post_title = wp_strip_all_tags($item->get_title());
-            $post_content = $item->get_content() ?: $item->get_description();
-
             // Step-by-step: Wait for AI content to finish before moving on
-            $ai_generated = generate_ai_content_from_rss($post_title, $post_content, $item->get_description());
+            $ai_generated = generate_ai_content_from_rss($item->get_description());
 
             // Check if AI failed
+            if (isset($ai_generated['status']) && $ai_generated['status'] === 'error') {
+                log_to_file('AI generation failed: ' . $ai_generated['message'], 'AI ERROR');
+                continue;
+            }
             if (empty($ai_generated['title']) || empty($ai_generated['content'])) {
                 log_to_file('AI generation incomplete. Skipping this feed item.', 'AI ERROR');
                 continue;
             }
 
-            $new_post_title   = $ai_generated['title'];
-            $new_post_content = $ai_generated['content'];
+            $post_title   = $ai_generated['title'];
+            $post_content = $ai_generated['content'];
 
             // Prepare the post excerpt
             $post_excerpt = $item->get_description();
@@ -91,8 +92,8 @@ function rss_importer_import_feed() {
 
             // Create the post
             $post_id = wp_insert_post([
-                'post_title'    => $new_post_title,
-                'post_content'  => $new_post_content,
+                'post_title'    => $post_title,
+                'post_content'  => $post_content,
                 'post_excerpt'  => $post_excerpt,
                 'post_status'   => 'publish',
                 'post_type'     => 'post',

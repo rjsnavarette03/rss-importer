@@ -1,11 +1,11 @@
 <?php
-function generate_ai_content_from_rss($title, $content, $description) {
+function generate_ai_content_from_rss($description) {
     $api_key = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
     if (empty($api_key)) {
         log_to_file('OpenAI API key is not defined!', 'API KEY ERROR');
         return [
-            'title' => $title,
-            'content' => $content,
+            'status' => 'error',
+            'message' => 'OpenAI API key not set.',
         ];
     }
 
@@ -21,6 +21,11 @@ function generate_ai_content_from_rss($title, $content, $description) {
         'max_tokens' => 1200,
     ]);
 
+    // Delay before making the API call
+    $delay = 2;
+    sleep($delay);
+
+    // Make the API call
     $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
         'headers' => [
             'Content-Type'  => 'application/json',
@@ -30,19 +35,27 @@ function generate_ai_content_from_rss($title, $content, $description) {
         'timeout' => 30,
     ]);
 
-    // log_to_file($response, 'OpenAI Response');
+    // Check if the response is an error
+    if (is_wp_error($response)) {
+        log_to_file('OpenAI API request failed: ' . $response->get_error_message(), 'API ERROR');
+        return [
+            'status' => 'error',
+            'message' => 'Failed to connect to OpenAI API.',
+        ];
+    }
 
+    // Parse the response body
     $data = json_decode(wp_remote_retrieve_body($response), true);
     if (empty($data)) {
         log_to_file('Failed to decode OpenAI response', 'JSON ERROR');
         return [
-            'title' => $title,
-            'content' => $content,
+            'status' => 'error',
+            'message' => 'OpenAI API key not set.',
         ];
     }
-    $aicontent = $data['choices'][0]['message']['content'] ?? '';
 
-    // log_to_file($aicontent, 'AI Raw Output');
+    // Extract content from the response
+    $aicontent = $data['choices'][0]['message']['content'] ?? '';
 
     $title_match = '';
     $content_match = '';
@@ -58,8 +71,8 @@ function generate_ai_content_from_rss($title, $content, $description) {
     log_to_file(['title' => $title_match, 'content' => $content_match], 'Parsed Output');
 
     return [
-        'title' => $title_match ?: $title,
-        'content' => $content_match ?: $content,
+        'title' => $title_match ?: '',
+        'content' => $content_match ?: '',
     ];
 }
 
