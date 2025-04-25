@@ -30,7 +30,7 @@ function generate_ai_content_from_rss($title, $content, $description) {
         'timeout' => 30,
     ]);
 
-    log_to_file($response, 'OpenAI Response');
+    // log_to_file($response, 'OpenAI Response');
 
     $data = json_decode(wp_remote_retrieve_body($response), true);
     if (empty($data)) {
@@ -42,7 +42,7 @@ function generate_ai_content_from_rss($title, $content, $description) {
     }
     $aicontent = $data['choices'][0]['message']['content'] ?? '';
 
-    log_to_file($aicontent, 'AI Raw Output');
+    // log_to_file($aicontent, 'AI Raw Output');
 
     $title_match = '';
     $content_match = '';
