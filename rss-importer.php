@@ -60,16 +60,18 @@ function rss_importer_import_feed() {
                 continue;
             }
 
-            // Prepare the post title
+            // Prepare base title and content
             $post_title = wp_strip_all_tags($item->get_title());
+            $post_content = $item->get_content() ?: $item->get_description();
 
-            // Prepare the post content
-            $post_content = $item->get_content();
-            if (empty($post_content)) {
-                $post_content = $item->get_description();
-            }
-            // Prepare the post content using AI instead
+            // Step-by-step: Wait for AI content to finish before moving on
             $ai_generated = generate_ai_content_from_rss($post_title, $post_content, $item->get_description());
+
+            // Check if AI failed
+            if (empty($ai_generated['title']) || empty($ai_generated['content'])) {
+                log_to_file('AI generation incomplete. Skipping this feed item.', 'AI ERROR');
+                continue;
+            }
 
             $new_post_title   = $ai_generated['title'];
             $new_post_content = $ai_generated['content'];
