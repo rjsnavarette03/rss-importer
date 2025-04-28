@@ -19,7 +19,7 @@ include('admin-settings.php');
 add_action('init', 'rss_importer_fetch_feed');
 function rss_importer_fetch_feed() {
     if (!wp_next_scheduled('rss_importer_fetch_event')) {
-        wp_schedule_event(time(), 'hourly', 'rss_importer_fetch_event');
+        wp_schedule_event(time(), 'daily', 'rss_importer_fetch_event');
     }
 }
 
@@ -32,7 +32,7 @@ function rss_importer_import_feed() {
         'https://www.clickorlando.com/arc/outboundfeeds/rss/category/entertainment/?outputType=xml&size=10' => 15,
     ];
 
-    $num_items = 5;
+    $num_items = 1;
 
     foreach ($feeds as $feed_url => $category_id) {
         $rss = fetch_feed($feed_url);
