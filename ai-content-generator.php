@@ -1,5 +1,5 @@
 <?php
-function generate_ai_content_from_rss($description) {
+function generate_ai_content_from_rss($title, $description) {
     $api_key = defined('OPENAI_API_KEY') ? OPENAI_API_KEY : '';
     if (empty($api_key)) {
         log_to_file('OpenAI API key is not defined!', 'API KEY ERROR');
@@ -9,7 +9,7 @@ function generate_ai_content_from_rss($description) {
         ];
     }
 
-    $prompt = "You're a blogger for a local Orlando news site. Use the description below to create a brand new original 1000 word SEO wise blog for my Orlando news website called 'Daily Orlando News'. The blog post should include an introduction, main body, and conclusion. The conclusion should invite readers to leave a comment. The main body should be split into at least 4 different subsections. For the title, make it 50-60 characters only.\n\nDescription: {$description}\n\nAlso, make sure you know that it's an ORLANDO news to address how the issue affects Orlando whenever possible. Return the result in the format below and should be HTML safe, like if there is a link, wrap it in a <a> tag:\nTitle: <Your title>\n\nContent:\n<Your content>";
+    $prompt = "You're a blogger for a local Orlando news site. Use the title and description below to create a brand new original 1000 word SEO wise blog for my Orlando news website called 'Daily Orlando News'. The blog post should include an introduction, main body, and conclusion. The conclusion should invite readers to leave a comment. The main body should be split into at least 4 different subsections. For the title, make it 50-60 characters only.\n\nTitle: {$title}\n\nDescription: {$description}\n\nAlso, make sure you know that it's an ORLANDO news to address how the issue affects Orlando whenever possible. It doesn't need to include the Orlando words in the title. Return the result in the format below and should be HTML safe, like if there is a link, wrap it in a <a> tag:\nTitle: <Your title>\n\nContent:\n<Your content>";
 
     $body = json_encode([
         'model' => 'gpt-4.1',
@@ -76,9 +76,8 @@ function generate_ai_content_from_rss($description) {
     ];
 }
 
-function log_to_file($message, $context = '') {
-    $log_file = plugin_dir_path(__FILE__) . 'ai-log.txt';
-    $time = date('Y-m-d H:i:s');
-    $formatted = "[$time] $context: " . print_r($message, true) . "\n";
-    file_put_contents($log_file, $formatted, FILE_APPEND);
+function log_to_file($message, $type = 'INFO') {
+    $log_file = WP_CONTENT_DIR . '/rss_importer_log.txt';
+    $formatted_message = "[" . current_time('mysql') . "] [$type] $message\n";
+    file_put_contents($log_file, $formatted_message, FILE_APPEND);
 }

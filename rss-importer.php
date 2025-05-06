@@ -62,7 +62,7 @@ function rss_importer_import_feed() {
             }
 
             // Step-by-step: Wait for AI content to finish before moving on
-            $ai_generated = generate_ai_content_from_rss($item->get_description());
+            $ai_generated = generate_ai_content_from_rss($item->get_title(), $item->get_description());
 
             // Check if AI failed
             if (isset($ai_generated['status']) && $ai_generated['status'] === 'error') {
@@ -130,6 +130,8 @@ function rss_importer_import_feed() {
                             set_post_thumbnail($post_id, $image_id);
                         }
                     }
+                } else {
+                    $media_content = $item->get_item_tags('', 'enclosure');
                 }
             }
         }
